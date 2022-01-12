@@ -131,3 +131,80 @@ export const getUserPosts = async (req: Request, res: Response)=>{
       res.json(response)
   })
 }
+
+export const votePost = async (req: Request, res: Response)=>{
+
+  const token: any = req.headers["user_token"]
+  const {post_id, vote_type} = req.params
+  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
+  
+  pool.query(`
+    SELECT vote_type
+    FROM votes
+    WHERE user_id = '${jwtPlayload.user_id}' AND post_id = '${post_id}';
+  `, (SelectErr, SelectRes: {}[])=>{
+    SelectErr
+      ?
+        res.status(400).send(SelectErr)
+      :
+        SelectRes.length >= 1
+          ?
+            res.status(400).json({
+              errMessage: "You cant vote twice"
+            })
+          :
+            pool.query(`
+              INSERT INTO votes SET?
+            `,{
+              user_id: jwtPlayload.user_id,
+              post_id: post_id,
+              vote_type: vote_type
+            }, 
+            (err, response)=>{
+              err
+              ?
+                res.status(400).json({
+                  DBerror: err,
+                  errMessage: "Server internal error"
+                })
+              :
+                res.status(200).json({
+                  DBmessage: response
+                })
+            })
+  })
+}
+
+
+export const votesCount = async (req: Request, res: Response)=>{
+  const { post_id } = req.params
+
+  pool.query(`
+    SELECT user_id, vote_type
+    FROM votes
+    WHERE post_id = '${post_id}' AND vote_type = 'p'
+  `, (dbErr, dbRes)=>{
+    dbErr
+      ?
+        res.status(400).json({
+          dbErr: dbErr
+        })
+      :
+        pool.query(`
+          SELECT user_id, vote_type
+          FROM votes
+          WHERE post_id = '${post_id}' AND vote_type = 'n'
+        `, (dbVErr, dbVRes)=>{
+          dbVErr
+            ?
+              res.status(400).json({
+                dbErr: dbVErr
+              })
+            :
+              res.status(200).json({
+                upVotes: dbRes,
+                downVotes: dbVRes
+              })
+        })
+  })
+}
