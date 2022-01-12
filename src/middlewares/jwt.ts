@@ -7,7 +7,7 @@ const conf = appConfig.passport.JWT
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token: any = req.headers["user_token"];
   let jwtPlayload
-  //console.log("res->", req.headers);
+  console.log("res->", req.headers);
   
   if (!token) {
     return res.status(403).send("User is not autenticated!");
