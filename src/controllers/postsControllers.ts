@@ -178,33 +178,48 @@ export const votePost = async (req: Request, res: Response)=>{
 
 export const votesCount = async (req: Request, res: Response)=>{
   const { post_id } = req.params
-
+  const token: any = req.headers["user_token"]
+  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
   pool.query(`
-    SELECT user_id, vote_type
+    SELECT vote_type
     FROM votes
-    WHERE post_id = '${post_id}' AND vote_type = 'p'
-  `, (dbErr, dbRes)=>{
-    dbErr
+    WHERE user_id = '${jwtPlayload.user_id}' AND post_id = '${post_id}';
+  `, (SelectErr, SelectRes: {}[])=>{
+    SelectErr
       ?
         res.status(400).json({
-          dbErr: dbErr
+          dbErr: SelectErr
         })
       :
-        pool.query(`
-          SELECT user_id, vote_type
-          FROM votes
-          WHERE post_id = '${post_id}' AND vote_type = 'n'
-        `, (dbVErr, dbVRes)=>{
-          dbVErr
+          pool.query(`
+            SELECT user_id, vote_type
+            FROM votes
+            WHERE post_id = '${post_id}' AND vote_type = 'p'
+          `, (dbErr, dbRes)=>{
+          dbErr
             ?
               res.status(400).json({
-                dbErr: dbVErr
+                dbErr: dbErr
               })
             :
-              res.status(200).json({
-                upVotes: dbRes,
-                downVotes: dbVRes
+              pool.query(`
+                SELECT user_id, vote_type
+                FROM votes
+                WHERE post_id = '${post_id}' AND vote_type = 'n'
+              `, (dbVErr, dbVRes)=>{
+                dbVErr
+                  ?
+                    res.status(400).json({
+                      dbErr: dbVErr
+                    })
+                  :
+                    res.status(200).json({
+                      upVotes: dbRes,
+                      iVoted: SelectRes.length >= 1,
+                      downVotes: dbVRes
+                    })
               })
-        })
+          })
   })
+
 }

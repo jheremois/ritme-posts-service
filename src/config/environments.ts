@@ -59,6 +59,6 @@ const appConfigDev: ConfigTypes = {
   },
 };
 
-const appConfig = appConfigDev
+const appConfig = appConfigLocal
 
 export default appConfig;
