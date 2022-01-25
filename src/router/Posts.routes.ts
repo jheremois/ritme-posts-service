@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPosts, createPost, getMyPosts, votePost, votesCount } from "../controllers/postsControllers";
+import { getPosts, createPost, getMyPosts, votePost, votesCount, getUserPosts } from "../controllers/postsControllers";
 import verifyToken from "../middlewares/jwt";
 
 const router = Router()
@@ -11,6 +11,8 @@ const PostsRoutes = ()=>{
     router.post('/post', verifyToken, createPost)
 
     router.get('/myPosts', verifyToken, getMyPosts)
+
+    router.get('/posts/:user_id', verifyToken, getUserPosts)
 
     router.post('/vote/:post_id/:vote_type', verifyToken, votePost)
 

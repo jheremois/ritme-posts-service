@@ -121,6 +121,26 @@ export const getUserPosts = async (req: Request, res: Response)=>{
     FROM posts AS s1
     INNER JOIN profiles AS s2
     ON s1.user_id = s2.user_id
+    WHERE s1.user_id = '${user_id}' AND s2.user_id = '${user_id}'
+    ORDER BY upload_time DESC
+  `, (err, response)=>{
+    err
+    ?
+      res.json(err)
+    :
+      res.json(response)
+  })
+}
+
+
+/*
+  const {user_id} = req.params
+
+  pool.query(`
+    SELECT s1.*, s2.user_name, s2.profile_pic
+    FROM posts AS s1
+    INNER JOIN profiles AS s2
+    ON s1.user_id = s2.user_id
     WHERE s1.user_id AND s2.user_id = '${user_id}'
     ORDER BY upload_time DESC
   `, (err, response)=>{
@@ -131,6 +151,7 @@ export const getUserPosts = async (req: Request, res: Response)=>{
       res.json(response)
   })
 }
+*/
 
 export const votePost = async (req: Request, res: Response)=>{
 
