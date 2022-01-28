@@ -132,17 +132,17 @@ export const getUserPosts = async (req: Request, res: Response)=>{
   })
 }
 
+export const getPostsByTag = async (req: Request, res: Response)=>{
 
-/*
-  const {user_id} = req.params
+  const {post_tag} = req.params
 
   pool.query(`
     SELECT s1.*, s2.user_name, s2.profile_pic
     FROM posts AS s1
     INNER JOIN profiles AS s2
     ON s1.user_id = s2.user_id
-    WHERE s1.user_id AND s2.user_id = '${user_id}'
-    ORDER BY upload_time DESC
+    WHERE s1.post_tag = "${post_tag}"
+    ORDER BY upload_time DESC;
   `, (err, response)=>{
     err
     ?
@@ -151,7 +151,6 @@ export const getUserPosts = async (req: Request, res: Response)=>{
       res.json(response)
   })
 }
-*/
 
 export const votePost = async (req: Request, res: Response)=>{
 

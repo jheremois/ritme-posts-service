@@ -21,7 +21,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
   const {user_id, username}: any = jwtPlayload
 
-  const newToken = sign({user_id, username}, conf.CLIENT_SECRET, {expiresIn: '15d'})
+  const newToken = sign({user_id, username}, conf.CLIENT_SECRET, {expiresIn: '360d'})
   res.setHeader("token", newToken)
 
   return next();
