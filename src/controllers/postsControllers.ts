@@ -243,3 +243,17 @@ export const votesCount = async (req: Request, res: Response)=>{
   })
 
 }
+
+
+export const getTrendTags = async (req: Request, res: Response)=>{
+  pool.query(`
+    SELECT DISTINCT post_tag
+    FROM posts;
+  `, (err, response)=>{
+    err
+    ?
+      res.json(err)
+    :
+      res.json(response)
+  })
+}
