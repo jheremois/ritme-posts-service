@@ -20,16 +20,16 @@ const PostsRoutes = ()=>{
 
     router.get('/votes/:post_id', verifyToken, votesCount)
 
-    router.get('/trendTags', verifyToken, getTrendTags)
+    router.get('/tags', verifyToken, getTrendTags)
 
     router.get('/feed', verifyToken, getFullPosts)
 
-    router.get('/feed/:user_id', verifyToken, getFullPostsByUser)
-
-    router.get('/myfeed', verifyToken, getMyFullPosts)
-
     router.get('/feed/:post_tag', verifyToken, getFullPostsByTag)
+
+    router.get('/profile', verifyToken, getMyFullPosts)
     
+    router.get('/profile/:user_id', verifyToken, getFullPostsByUser)
+
     return router
 }
 
