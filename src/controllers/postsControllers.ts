@@ -172,205 +172,99 @@ export const getFullPostsByTag = (req: Request, res: Response)=>{
   const {post_tag} = req.params
 
   pool.query(`
-    SELECT s1.post_id
-    FROM posts AS s1
+    SELECT 
+    s1.user_id,
+    s3.user_name, 
+    s3.profile_pic,
+    s1.post_id, 
+    s1.post_description,
+    s1.post_image, 
+    s1.post_tag,
+    s1.upload_time,
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    from posts as s1
+    JOIN votes as s2
+    JOIN profiles as s3
+    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
     WHERE s1.post_tag = '${post_tag}'
+    GROUP BY post_id
+    ORDER BY s1.upload_time DESC;
   `,
-    async (idsErr, idsRes: any[])=>{
-
-      var postList: any[] = []
-      var pushEnded: number = 0
-
-      const loadPosts = idsRes.map((mapRes, index, data)=>{
-
-        var iVoted: any
-
-        pool.query(`
-          SELECT s1.user_id, s1.vote_type, s1.post_id
-          FROM votes As s1
-          WHERE s1.post_id = '${mapRes.post_id}';
-        `, (ivoteErr, iVotedRess: any[])=> {
-          iVoted = iVotedRess.length > 0?true:false
-        })
-        
-        pool.query(`
-          SELECT s1.*, s2.user_name, s2.profile_pic
-          FROM posts AS s1
-          INNER JOIN profiles AS s2
-          ON s1.user_id = s2.user_id
-          WHERE s1.post_id = '${mapRes.post_id}'
-          ORDER BY s1.upload_time DESC;
-          `, (SelectErr, SelectRes: {}[])=>{
-            pool.query(`
-              SELECT s1.user_id, s1.vote_type, s1.post_id
-              FROM votes As s1
-              WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'p'
-            `, (err, respU)=>{
-                pool.query(`
-                  SELECT s1.user_id, s1.vote_type, s1.post_id
-                  FROM votes As s1
-                  WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'n'
-                `, (err, respN)=>{
-                  postList.push({
-                    post: SelectRes[0],
-                    iVoted: iVoted,
-                    upVotes: respU,
-                    downVotes: respN
-                  })
-
-                  pushEnded++
-
-                  pushEnded == data.length && res.send(postList)
-
-                })
-            })
-          }
-        )
-
-      })
-
-      Promise.all(loadPosts)
-
-    }
-  )
+  (poolErr, poolRes: any[])=>{
+    poolErr
+    ?
+      res.status(403).json(poolErr)
+    :
+      res.status(202).json(poolRes)
+  })
 }
 
 export const getFullPosts = (req: Request, res: Response)=>{
 
-  const token: any = req.headers["user_token"]
-  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
-
   pool.query(`
-    SELECT s1.post_id
-    FROM posts AS s1
+    SELECT 
+    s1.user_id,
+    s3.user_name, 
+    s3.profile_pic,
+    s1.post_id, 
+    s1.post_description,
+    s1.post_image, 
+    s1.post_tag,
+    s1.upload_time,
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    from posts as s1
+    JOIN votes as s2
+    JOIN profiles as s3
+    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
+    GROUP BY post_id
+    ORDER BY s1.upload_time DESC;
   `,
-    async (idsErr, idsRes: any[])=>{
-
-      var postList: any[] = []
-      var pushEnded: number = 0
-
-      const loadPosts = idsRes.map((mapRes, index, data)=>{
-
-        var iVoted: any
-
-        pool.query(`
-          SELECT s1.user_id, s1.vote_type, s1.post_id
-          FROM votes As s1
-          WHERE s1.post_id = '${mapRes.post_id}' AND s1.user_id = '${jwtPlayload.user_id}';
-        `, (ivoteErr, iVotedRess: any[])=> {
-          iVoted = iVotedRess.length > 0?true:false
-        })
-        
-        pool.query(`
-          SELECT s1.*, s2.user_name, s2.profile_pic
-          FROM posts AS s1
-          INNER JOIN profiles AS s2
-          ON s1.user_id = s2.user_id
-          WHERE s1.post_id = '${mapRes.post_id}'
-          ORDER BY s1.upload_time DESC;
-          `, (SelectErr, SelectRes: {}[])=>{
-            pool.query(`
-              SELECT s1.user_id, s1.vote_type, s1.post_id
-              FROM votes As s1
-              WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'p'
-            `, (err, respU)=>{
-                pool.query(`
-                  SELECT s1.user_id, s1.vote_type, s1.post_id
-                  FROM votes As s1
-                  WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'n'
-                `, (err, respN)=>{
-                  postList.push({
-                    post: SelectRes[0],
-                    iVoted: iVoted,
-                    upVotes: respU,
-                    downVotes: respN
-                  })
-
-                  pushEnded++
-
-                  pushEnded == data.length && res.send(postList)
-
-                })
-            })
-          }
-        )
-
-      })
-
-      Promise.all(loadPosts)
-
+    (poolErr, poolRes: any[])=>{
+      poolErr
+      ?
+        res.status(403).json(poolErr)
+      :
+        res.status(202).json(poolRes)
     }
   )
 }
 
 export const getFullPostsByUser = (req: Request, res: Response)=>{
 
-  const token: any = req.headers["user_token"]
-  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
   const { user_id } = req.params
 
   pool.query(`
-    SELECT s1.post_id
-    FROM posts AS s1
+    SELECT 
+    s1.user_id,
+    s3.user_name, 
+    s3.profile_pic,
+    s1.post_id, 
+    s1.post_description,
+    s1.post_image, 
+    s1.post_tag,
+    s1.upload_time,
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    from posts as s1
+    JOIN votes as s2
+    JOIN profiles as s3
+    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
     WHERE s1.user_id = '${user_id}'
+    GROUP BY post_id
+    ORDER BY s1.upload_time DESC;
   `,
-    async (idsErr, idsRes: any[])=>{
-
-      var postList: any[] = []
-      var pushEnded: number = 0
-
-      const loadPosts = idsRes.map((mapRes, index, data)=>{
-
-        var iVoted: any
-
-        pool.query(`
-          SELECT s1.user_id, s1.vote_type, s1.post_id
-          FROM votes As s1
-          WHERE s1.post_id = '${mapRes.post_id}' AND s1.user_id = '${jwtPlayload.user_id}';
-        `, (ivoteErr, iVotedRess: any[])=> {
-          iVoted = iVotedRess.length > 0?true:false
-        })
-        
-        pool.query(`
-          SELECT s1.*, s2.user_name, s2.profile_pic
-          FROM posts AS s1
-          INNER JOIN profiles AS s2
-          ON s1.user_id = s2.user_id
-          WHERE s1.post_id = '${mapRes.post_id}'
-          ORDER BY s1.upload_time DESC;
-          `, (SelectErr, SelectRes: {}[])=>{
-            pool.query(`
-              SELECT s1.user_id, s1.vote_type, s1.post_id
-              FROM votes As s1
-              WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'p'
-            `, (err, respU)=>{
-                pool.query(`
-                  SELECT s1.user_id, s1.vote_type, s1.post_id
-                  FROM votes As s1
-                  WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'n'
-                `, (err, respN)=>{
-                  postList.push({
-                    post: SelectRes[0],
-                    iVoted: iVoted,
-                    upVotes: respU,
-                    downVotes: respN
-                  })
-
-                  pushEnded++
-
-                  pushEnded == data.length && res.send(postList)
-
-                })
-            })
-          }
-        )
-
-      })
-
-      Promise.all(loadPosts)
-
-    }
-  )
+  (poolErr, poolRes: any[])=>{
+    poolErr
+    ?
+      res.status(403).json(poolErr)
+    :
+      res.status(202).json(poolRes)
+  })
 }
 
 
@@ -380,67 +274,33 @@ export const getMyFullPosts = (req: Request, res: Response)=>{
   let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
 
   pool.query(`
-    SELECT s1.post_id
-    FROM posts AS s1
+    SELECT 
+    s1.user_id,
+    s3.user_name, 
+    s3.profile_pic,
+    s1.post_id, 
+    s1.post_description,
+    s1.post_image, 
+    s1.post_tag,
+    s1.upload_time,
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    from posts as s1
+    JOIN votes as s2
+    JOIN profiles as s3
+    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
     WHERE s1.user_id = '${jwtPlayload.user_id}'
+    GROUP BY post_id
+    ORDER BY s1.upload_time DESC;
   `,
-    async (idsErr, idsRes: any[])=>{
-
-      var postList: any[] = []
-      var pushEnded: number = 0
-
-      const loadPosts = idsRes.map((mapRes, index, data)=>{
-
-        var iVoted: any
-
-        pool.query(`
-          SELECT s1.user_id, s1.vote_type, s1.post_id
-          FROM votes As s1
-          WHERE s1.post_id = '${mapRes.post_id}' AND s1.user_id = '${jwtPlayload.user_id}';
-        `, (ivoteErr, iVotedRess: any[])=> {
-          iVoted = iVotedRess.length > 0?true:false
-        })
-        
-        pool.query(`
-          SELECT s1.*, s2.user_name, s2.profile_pic
-          FROM posts AS s1
-          INNER JOIN profiles AS s2
-          ON s1.user_id = s2.user_id
-          WHERE s1.post_id = '${mapRes.post_id}'
-          ORDER BY s1.upload_time DESC;
-          `, (SelectErr, SelectRes: {}[])=>{
-            pool.query(`
-              SELECT s1.user_id, s1.vote_type, s1.post_id
-              FROM votes As s1
-              WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'p'
-            `, (err, respU)=>{
-                pool.query(`
-                  SELECT s1.user_id, s1.vote_type, s1.post_id
-                  FROM votes As s1
-                  WHERE s1.post_id = '${mapRes.post_id}' AND s1.vote_type = 'n'
-                `, (err, respN)=>{
-                  postList.push({
-                    post: SelectRes[0],
-                    iVoted: iVoted,
-                    upVotes: respU,
-                    downVotes: respN
-                  })
-
-                  pushEnded++
-
-                  pushEnded == data.length && res.send(postList)
-
-                })
-            })
-          }
-        )
-
-      })
-
-      Promise.all(loadPosts)
-
-    }
-  )
+  (poolErr, poolRes: any[])=>{
+    poolErr
+    ?
+      res.status(403).json(poolErr)
+    :
+      res.status(202).json(poolRes)
+  })
 }
 
 export const getTrendTags = async (req: Request, res: Response)=>{
