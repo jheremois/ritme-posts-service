@@ -181,13 +181,12 @@ export const getFullPostsByTag = (req: Request, res: Response)=>{
     s1.post_image, 
     s1.post_tag,
     s1.upload_time,
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
-    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
-    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
+    ON s1.user_id = s3.user_id
     WHERE s1.post_tag = '${post_tag}'
     GROUP BY post_id
     ORDER BY s1.upload_time DESC;
@@ -213,13 +212,12 @@ export const getFullPosts = (req: Request, res: Response)=>{
     s1.post_image, 
     s1.post_tag,
     s1.upload_time,
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
-    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
-    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
+    ON s1.user_id = s3.user_id
     GROUP BY post_id
     ORDER BY s1.upload_time DESC;
   `,
@@ -247,13 +245,12 @@ export const getFullPostsByUser = (req: Request, res: Response)=>{
     s1.post_image, 
     s1.post_tag,
     s1.upload_time,
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
-    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
-    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
+    ON s1.user_id = s3.user_id
     WHERE s1.user_id = '${user_id}'
     GROUP BY post_id
     ORDER BY s1.upload_time DESC;
@@ -283,13 +280,12 @@ export const getMyFullPosts = (req: Request, res: Response)=>{
     s1.post_image, 
     s1.post_tag,
     s1.upload_time,
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p')) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n')) as 'down_votes',
-    COUNT((SELECT s2.vote_type WHERE s2.user_id = '12')) as 'i_voted'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
-    ON s1.post_id = s2.post_id AND s1.user_id = s3.user_id
+    ON s1.user_id = s3.user_id
     WHERE s1.user_id = '${jwtPlayload.user_id}'
     GROUP BY post_id
     ORDER BY s1.upload_time DESC;
