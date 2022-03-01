@@ -170,6 +170,8 @@ export const votesCount = async (req: Request, res: Response)=>{
 export const getFullPostsByTag = (req: Request, res: Response)=>{
 
   const {post_tag} = req.params
+  const token: any = req.headers["user_token"]
+  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
 
   pool.query(`
     SELECT 
@@ -182,7 +184,8 @@ export const getFullPostsByTag = (req: Request, res: Response)=>{
     s1.post_tag,
     s1.upload_time,
     COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '${jwtPlayload.user_id}' AND s1.post_id = s2.post_id)) as 'i_voted'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
@@ -202,6 +205,9 @@ export const getFullPostsByTag = (req: Request, res: Response)=>{
 
 export const getFullPosts = (req: Request, res: Response)=>{
 
+  const token: any = req.headers["user_token"]
+  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
+
   pool.query(`
     SELECT 
     s1.user_id,
@@ -213,7 +219,8 @@ export const getFullPosts = (req: Request, res: Response)=>{
     s1.post_tag,
     s1.upload_time,
     COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '${jwtPlayload.user_id}' AND s1.post_id = s2.post_id)) as 'i_voted'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
@@ -234,6 +241,8 @@ export const getFullPosts = (req: Request, res: Response)=>{
 export const getFullPostsByUser = (req: Request, res: Response)=>{
 
   const { user_id } = req.params
+  const token: any = req.headers["user_token"]
+  let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
 
   pool.query(`
     SELECT 
@@ -246,7 +255,8 @@ export const getFullPostsByUser = (req: Request, res: Response)=>{
     s1.post_tag,
     s1.upload_time,
     COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '${jwtPlayload.user_id}' AND s1.post_id = s2.post_id)) as 'i_voted'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
@@ -281,7 +291,8 @@ export const getMyFullPosts = (req: Request, res: Response)=>{
     s1.post_tag,
     s1.upload_time,
     COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'p' and s1.post_id = s2.post_id)) as 'up_votes', 
-    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes'
+    COUNT((SELECT s2.vote_type WHERE s2.vote_type = 'n' and s1.post_id = s2.post_id)) as 'down_votes',
+    COUNT((SELECT s2.vote_type WHERE s2.user_id = '${jwtPlayload.user_id}' AND s1.post_id = s2.post_id)) as 'i_voted'
     from posts as s1
     JOIN votes as s2
     JOIN profiles as s3
