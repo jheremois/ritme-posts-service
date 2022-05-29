@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPost, votePost, votesCount, getTrendTags, getFullPosts, getFullPostsByTag, getFullPostsByUser, getMyFullPosts } from "../controllers/postsControllers";
+import { createPost, votePost, votesCount, getTrendTags, getFullPosts, getFullPostsByTag, getFullPostsByUser, getMyFullPosts, getPost } from "../controllers/postsControllers";
 import verifyToken from "../middlewares/jwt";
 
 const router = Router()
@@ -15,6 +15,8 @@ const PostsRoutes = ()=>{
     router.get('/tags', verifyToken, getTrendTags)
 
     router.get('/feed', verifyToken, getFullPosts)
+
+    router.get('/post/:post_id', verifyToken, getPost)
 
     router.get('/feed/:post_tag', verifyToken, getFullPostsByTag)
 
