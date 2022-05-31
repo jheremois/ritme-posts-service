@@ -354,6 +354,10 @@ export const getPost = async (req: Request, res: Response) =>{
     ?
       res.status(403).json(poolErr)
     :
-      res.status(202).json(poolRes)
+      poolRes.length === 1
+      ?
+        res.status(202).json(poolRes)
+      :
+        res.status(405).send("this post was not found")
   })
 }
