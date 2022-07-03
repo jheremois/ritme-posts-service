@@ -37,7 +37,7 @@ export const createPost = async (req: Request, res: Response)=>{
   const { post_description, post_tag, post_image } = req.body
   const token: any = req.headers["user_token"]
   const imgData = post_image;
-  const base64Data: string | null = post_image?imgData.replace(/^data:image\/png;base64,/, ""):false
+  const base64Data: string | null = post_image?imgData.replace(/^data:image\/[a-z]+;base64,/, ""):false
   let jwtPlayload: any = verify(token, conf.CLIENT_SECRET)
 
     post_image && post_image.includes("base64")
@@ -85,7 +85,7 @@ export const votePost = async (req: Request, res: Response)=>{
     SELECT vote_type
     FROM votes
     WHERE user_id = '${jwtPlayload.user_id}' AND post_id = '${post_id}';
-  `, (SelectErr, SelectRes: {}[])=>{
+  `, (SelectErr: any, SelectRes: {}[])=>{
     SelectErr
       ?
         res.status(400).send(SelectErr)
@@ -127,7 +127,7 @@ export const votesCount = async (req: Request, res: Response)=>{
     SELECT vote_type
     FROM votes
     WHERE user_id = '${jwtPlayload.user_id}' AND post_id = '${post_id}';
-  `, (SelectErr, SelectRes: {}[])=>{
+  `, (SelectErr: any, SelectRes: {}[])=>{
     SelectErr
       ?
         res.status(400).json({
