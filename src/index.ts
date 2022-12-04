@@ -13,12 +13,8 @@ const server = http.createServer(app);
 dotenv.config({path: './.env'})
 app.set('port', process.env.PORT || 4200)
 
-const corsOptions = {
-	origin: appConfig.cors.allowOrigin,
-	optionsSuccessStatus: 200
-};
+app.use(cors())
 
-app.use(cors(corsOptions))
 app.use(express.json({limit: '15mb'}));
 
 const port = app.get('port')
