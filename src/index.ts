@@ -4,6 +4,7 @@ import http from "http"
 import 'reflect-metadata'
 import postRoutes from "./router/Posts.routes";
 import cors from "cors";
+import appConfig from "./config/environments";
 
 const app = express()
 
@@ -11,8 +12,9 @@ const server = http.createServer(app);
 
 dotenv.config({path: './.env'})
 app.set('port', process.env.PORT || 4200)
+
 const corsOptions = {
-	origin: process.env.ALLOW_ORIGIN_DEV,
+	origin: appConfig.cors.allowOrigin,
 	optionsSuccessStatus: 200
 };
 
